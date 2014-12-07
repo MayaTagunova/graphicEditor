@@ -1,0 +1,10 @@
+<RCC>
+  <qresource>
+    <file>images/Open.png</file>
+    <file>images/New.png</file>
+    <file>images/Save.png</file>
+    <file>images/Pencil.png</file>
+    <file>images/Brush.png</file>
+    <file>images/Eraser.png</file>
+  </qresource>
+</RCC>
