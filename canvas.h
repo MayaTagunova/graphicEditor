@@ -1,10 +1,8 @@
 #ifndef CANVAS_H
 #define CANVAS_H
 
-#include <vector>
-#include <memory>
-#include <stdint.h>
 #include <QString>
+#include <QImage>
 #include "tool.h"
 
 #define WIDTH 400
@@ -15,21 +13,22 @@ class Canvas
 public:
     Canvas();
     ~Canvas();
-    void setTool(Tool *tool);
+
     void setPath(QString newFileName);
     QString getPath();
     QString getFileName();
+    QImage* getImage();
     bool readFile();
     bool writeFile();
     bool modified();
+    void setModified();
     void clear();
+    void undo();
+    void storeImage();
 
 private:
-    int m_Width;
-    int m_Height;
-    canvasMap m_Map;
-
-    std::unique_ptr<Tool> m_Tool;
+    QImage m_Image;
+    QImage m_PreviousImage;
     QString m_Path;
     bool m_Modified;
 };

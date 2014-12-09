@@ -4,24 +4,17 @@
 #include "toolfactory.h"
 
 Canvas::Canvas() :
-    m_Width(WIDTH),
-    m_Height(HEIGHT),
-    m_Map(m_Width * m_Height),
-    m_Tool(nullptr),
+    m_Image(WIDTH, HEIGHT, QImage::Format_RGB32),
+    m_PreviousImage(m_Image),
     m_Path(""),
     m_Modified(false)
 {
-
+    m_Image.fill(Qt::white);
 }
 
 Canvas::~Canvas()
 {
 
-}
-
-void Canvas::setTool(Tool *tool)
-{
-    m_Tool.reset(tool);
 }
 
 void Canvas::setPath(QString path)
@@ -39,24 +32,27 @@ QString Canvas::getFileName()
     return QFileInfo(m_Path).fileName();
 }
 
+QImage* Canvas::getImage()
+{
+    return &m_Image;
+}
+
 bool Canvas::readFile()
 {
-    QFile file(m_Path);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        //mText = QString::fromUtf8(file.readAll());
-        m_Modified = false;
-        file.close();
-        return true;
+    if (! m_Path.isEmpty()) {
+        QImage newImage(m_Path);
+        if (! newImage.isNull()) {
+            m_Modified = false;
+            m_Image = newImage;
+            return true;
+        }
     }
     return false;
 }
 
 bool Canvas::writeFile()
 {
-    QFile file(m_Path);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        //file.write(mText.toUtf8());
-        file.close();
+    if (m_Image.save(m_Path)) {
         m_Modified = false;
         return true;
     }
@@ -68,9 +64,26 @@ bool Canvas::modified()
     return m_Modified;
 }
 
+void Canvas::setModified()
+{
+    m_Modified = true;
+}
+
 void Canvas::clear()
 {
-    //mText.clear();
+    QImage newImage(WIDTH, HEIGHT, QImage::Format_RGB32);
+    m_Image = newImage;
+    m_Image.fill(Qt::white);
     m_Path.clear();
     m_Modified = false;
+}
+
+void Canvas::undo()
+{
+    m_Image = m_PreviousImage;
+}
+
+void Canvas::storeImage()
+{
+    m_PreviousImage = m_Image;
 }

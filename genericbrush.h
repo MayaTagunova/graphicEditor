@@ -1,22 +1,18 @@
 #ifndef GENERICBRUSH_H
 #define GENERICBRUSH_H
 
-#include <array>
-#include <stdint.h>
+#include <QImage>
 #include "tool.h"
-
-#define MAX_STAMP_SIZE 31
-
-typedef std::array <uint32_t, MAX_STAMP_SIZE * MAX_STAMP_SIZE> stampMap;
 
 class GenericBrush : public Tool
 {
 public:
-    GenericBrush(stampMap &stamp);
-    void apply(canvasMap& map, uint32_t cursor);
+    GenericBrush(const QImage &stamp);
+    void apply(QImage* image, const QPoint& cursor);
 
 private:
-    stampMap m_Stamp;
+    QImage m_Stamp;
+
 };
 
 #endif // GENERICBRUSH_H

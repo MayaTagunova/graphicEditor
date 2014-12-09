@@ -2,31 +2,19 @@
 #define TOOLFACTORY_H
 
 #include "genericbrush.h"
-#include "sys/types.h"
+#include <QColor>
 
-#define BLACK 0x000000FF
-#define WHITE 0xFFFFFFFF
-#define TRANSPARENT 0xFFFFFF00
+#define STAMP_SIZE 31
+#define TRANSPARENT 0x00FFFFFF
 
-#define PENCIL_SIZE 1
+enum class Figure {ROUND, SQUARE, SLASH, BACKSLASH};
+enum class Size : int {SMALL = 3, MEDIUM = 5, LARGE = 8};
 
 class ToolFactory
 {
 public:
     ToolFactory();
-
-    GenericBrush* createPencil(uint32_t color);
-    GenericBrush* createRoundBrush(uint32_t color, int size);
-    GenericBrush* createSquareBrush(uint32_t color, int size);
-    GenericBrush* createSlashBrush(uint32_t color, int size);
-    GenericBrush* createBackslashBrush(uint32_t color, int size);
-    GenericBrush* createRoundEraser(int size);
-    GenericBrush* createSquareEraser(int size);
-    GenericBrush* createSlashEraser(int size);
-    GenericBrush* createBackslashEraser(int size);
-
-private:
-    uint32_t m_Color;
+    Tool* createGenericBrush(QColor color, Figure figure, Size size);
 };
 
 #endif // TOOLFACTORY_H

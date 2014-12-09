@@ -10,17 +10,22 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    createContextMenu();
+
     connectActions();
+    createContextMenu();
     createStatusBar();
-//    loadDataFromCanvas();
-//    connect(ui->textEdit, SIGNAL(textChanged()),
-//            this, SLOT(updateModelAndTitle()));
+    connect(ui->chooseColorButton, SIGNAL(clicked()),
+            this, SLOT(chooseColor()));
+    connect(ui->chooseFigureButton, SIGNAL(clicked()),
+            this, SLOT(chooseStamp()));
+
+    ToolFactory factory;
+    ui->imageEdit->setTool(factory.createGenericBrush(Qt::black, Figure::ROUND, Size::SMALL));
 }
 
 void MainWindow::createContextMenu()
 {
-    //ui->imageEdit->addAction(ui->actionUndo);
+    ui->imageEdit->addAction(ui->actionUndo);
 }
 
 void MainWindow::connectActions()
@@ -45,10 +50,7 @@ void MainWindow::connectActions()
             this, SLOT(switchToBrush()));
     connect(ui->actionEraser, SIGNAL(triggered()),
             this, SLOT(switchToEraser()));
-    connect(ui->actionChooseColor, SIGNAL(triggered()),
-            this, SLOT(chooseColor()));
-    connect(ui->actionChooseStamp, SIGNAL(triggered()),
-            this, SLOT(chooseStamp()));
+
 }
 
 void MainWindow::createStatusBar()
@@ -58,7 +60,7 @@ void MainWindow::createStatusBar()
 
 bool MainWindow::canContinue()
 {
-    if (image.modified()) {
+    if (ui->imageEdit->canvas()->modified()) {
         int a;
         a = QMessageBox::warning(this,
                                  tr("Warning"),
@@ -79,9 +81,9 @@ bool MainWindow::canContinue()
 
 void MainWindow::loadDataFromCanvas()
 {
-//    ui->textEdit->setText(model.getText());
+
     setWindowModified(false);
-    QString fileName = image.getFileName();
+    QString fileName = ui->imageEdit->canvas()->getFileName();
     if (fileName.isEmpty()) {
         fileName = "New image";
     }
@@ -90,16 +92,6 @@ void MainWindow::loadDataFromCanvas()
                                   .arg(tr("Graphic editor")));
 
 }
-/*
-void MainWindow::updateModelAndTitle()
-{
-    if (updated == true) {
-        updated = false;
-    } else {
-        model.setText(ui->textEdit->toPlainText());
-        setWindowModified(true);
-    }
-}*/
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
@@ -113,8 +105,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::createNewImage()
 {
     if (canContinue()) {
-        image.clear();
+        ui->imageEdit->canvas()->clear();
         loadDataFromCanvas();
+        update();
     }
 }
 
@@ -126,15 +119,14 @@ void MainWindow::openFile()
                                                         ".",
                                                         tr("Any files (*)"));
         if (path != "") {
-            image.setPath(path);
-            if (!(image.readFile())) {
+            ui->imageEdit->canvas()->setPath(path);
+            if (!(ui->imageEdit->canvas()->readFile())) {
                 QMessageBox::warning(this,
                                      tr("Warning"),
                                      tr("Failed to open file"),
                                      QMessageBox::Ok);
                 ui->statusbar->showMessage(tr("Failed to open file"), DELAY);
             }
-            //updated = true;
             loadDataFromCanvas();
         } else {
             ui->statusbar->showMessage(tr("File opening canceled"), DELAY);
@@ -144,10 +136,10 @@ void MainWindow::openFile()
 
 bool MainWindow::saveImage()
 {
-    if (image.getPath() == "") {
+    if (ui->imageEdit->canvas()->getPath() == "") {
         return saveImageAs();
     }
-    if (image.writeFile()) {
+    if (ui->imageEdit->canvas()->writeFile()) {
         ui->statusbar->showMessage(tr("The image was saved"), DELAY);
         setWindowModified(false);
         return true;
@@ -168,28 +160,44 @@ bool MainWindow::saveImageAs()
                                                 ".",
                                                 tr("Any files (*)"));
     if (path != "") {
-        image.setPath(path);
+        ui->imageEdit->canvas()->setPath(path);
         return saveImage();
         loadDataFromCanvas();
     }
     return false;
 }
 
-void MainWindow::undo(){}
+void MainWindow::undo()
+{
+    ui->imageEdit->canvas()->undo();
+    update();
+}
 
 void MainWindow::showAbout()
 {
     QMessageBox::about(this,
                        tr("About graphic editor"),
-                       tr("Text Editor 1.0\n"
+                       tr("Graphic Editor\n"
                           "Maya Tagunova, 2014"));
 }
 
 void MainWindow::switchToPencil(){}
 void MainWindow::switchToBrush(){}
 void MainWindow::switchToEraser(){}
-void MainWindow::chooseColor(){}
-void MainWindow::chooseStamp(){}
+
+void MainWindow::chooseColor()
+{
+    QColor newColor = QColorDialog::getColor(m_CurrentColor, this);
+
+    if (newColor.isValid()) {
+        m_CurrentColor = newColor;
+    }
+}
+
+void MainWindow::chooseStamp()
+{
+
+}
 
 MainWindow::~MainWindow()
 {

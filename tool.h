@@ -1,16 +1,12 @@
 #ifndef TOOL_H
 #define TOOL_H
 
-//#include "canvas.h"
-#include <stdint.h>
-#include <vector>
-
-typedef std::vector<uint32_t> canvasMap;
+#include <QImage>
 
 class Tool
 {
 public:
-    virtual void apply(canvasMap& map, uint32_t cursor) = 0;
+    virtual void apply(QImage*, const QPoint&) = 0;
 };
 
 #endif // TOOL_H

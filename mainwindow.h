@@ -4,6 +4,9 @@
 #include <QMainWindow>
 #include "canvas.h"
 
+enum class Figure;
+enum class Size;
+
 namespace Ui {
 class MainWindow;
 }
@@ -18,13 +21,15 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    Canvas image;
+
+    Figure m_CurrentFigure;
+    Size m_CurrentSize;
+    QColor m_CurrentColor;
 
     void createContextMenu();
     void connectActions();
     void createStatusBar();
     void closeEvent(QCloseEvent *);
-
     bool canContinue();
 
 private slots:
@@ -39,9 +44,7 @@ private slots:
     void switchToEraser();
     void chooseColor();
     void chooseStamp();
-
     void loadDataFromCanvas();
-//    void updateModelAndTitle();
 };
 
 #endif // MAINWINDOW_H
