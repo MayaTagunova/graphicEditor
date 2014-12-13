@@ -36,7 +36,7 @@ static bool isInSlash(int x, int y, int halfLength)
     int xC = (STAMP_SIZE - 1) / 2;
     int yC = (STAMP_SIZE - 1) / 2;
 
-    if (((x - xC) == -(y - yC)) &&
+    if ((abs ((x - xC) + (y - yC))) <=1 &&
         isInCircle(x, y, halfLength))
         return true;
     return false;
@@ -47,7 +47,7 @@ static bool isInBackslash(int x, int y, int halfLength)
     int xC = (STAMP_SIZE - 1) / 2;
     int yC = (STAMP_SIZE - 1) / 2;
 
-    if (((x - xC) == (y - yC)) &&
+    if ((abs ((x - xC) - (y - yC))) <=1 &&
         isInCircle(x, y, halfLength))
         return true;
     return false;
@@ -56,6 +56,12 @@ static bool isInBackslash(int x, int y, int halfLength)
 Tool* ToolFactory::createGenericBrush(QColor color,
                                       Figure figure,
                                       Size size)
+{
+    m_Stamp = createStamp(color, figure, size);
+    return new GenericBrush(m_Stamp);
+}
+
+QImage ToolFactory::createStamp(QColor color, Figure figure, Size size)
 {
     QImage stamp(STAMP_SIZE, STAMP_SIZE, QImage::Format_ARGB32);
 
@@ -75,6 +81,7 @@ Tool* ToolFactory::createGenericBrush(QColor color,
         isInFigure = isInBackslash;
         break;
     default:
+        isInFigure = isInCircle;
         break;
     }
 
@@ -89,6 +96,5 @@ Tool* ToolFactory::createGenericBrush(QColor color,
         }
 
     }
-
-    return new GenericBrush(stamp);
+    return stamp;
 }

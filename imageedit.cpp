@@ -1,11 +1,12 @@
 #include "imageedit.h"
+#include <math.h>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QDebug>
 
 ImageEdit::ImageEdit(QWidget *parent) :
     QWidget(parent),
     m_Canvas(new Canvas()),
-    //m_Tool(tool),
     m_Drawing(false),
     m_CurrentPoint()
 {
@@ -25,8 +26,7 @@ std::shared_ptr<Canvas> ImageEdit::canvas()
 void ImageEdit::mouseMoveEvent (QMouseEvent *event)
 {
     if ((event->buttons() & Qt::LeftButton) && m_Drawing) {
-
-        m_Tool->apply(m_Canvas->getImage(), event->pos());
+        drawLine(m_CurrentPoint, event->pos());
         update();
     }
 }
@@ -43,13 +43,52 @@ void ImageEdit::mousePressEvent (QMouseEvent *event)
 void ImageEdit::mouseReleaseEvent (QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton && m_Drawing) {
-        m_Tool->apply(m_Canvas->getImage(), event->pos());
+        drawLine(m_CurrentPoint, event->pos());
         update();
         m_Canvas->setModified();
         m_Drawing = false;
     }
 }
 
+void ImageEdit::drawLine(const QPoint startPoint, const QPoint endPoint)
+{
+    int xCurr = startPoint.x();
+    int yCurr = startPoint.y();
+    int xNew = endPoint.x();
+    int yNew = endPoint.y();
+
+    double tangent = 0;
+
+    if (abs(xNew - xCurr) > abs(yNew - yCurr)) {
+        if (xNew != xCurr) {
+
+            tangent = (double)(yNew - yCurr) /
+                      (double)(xNew - xCurr);
+        }
+        for (int x = std::min(xCurr, xNew);
+                 x <= std::max(xCurr, xNew);
+                 x++) {
+
+            int y = (int) (tangent * (x - xCurr)) + yCurr;
+            m_Tool->apply(m_Canvas->getImage(), QPoint(x, y));
+        }
+    } else {
+        if (yNew != yCurr) {
+
+            tangent = (double)(xNew - xCurr) /
+                      (double)(yNew - yCurr);
+        }
+        for (int y = std::min(yCurr, yNew);
+                 y <= std::max(yCurr, yNew);
+                 y++) {
+
+            int x = round (tangent * (y - yCurr) + xCurr);
+            m_Tool->apply(m_Canvas->getImage(), QPoint(x, y));
+        }
+    }
+
+    m_CurrentPoint = endPoint;
+}
 
 void ImageEdit::paintEvent(QPaintEvent *event)
 {
@@ -57,5 +96,3 @@ void ImageEdit::paintEvent(QPaintEvent *event)
     QRect rectangle = event->rect();
     painter.drawImage(rectangle, *(m_Canvas->getImage()), rectangle);
 }
-
-

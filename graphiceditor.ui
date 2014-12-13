@@ -22,7 +22,9 @@
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="ImageEdit" name="imageEdit" native="true"/>
+     <widget class="ImageEdit" name="imageEdit" native="true">
+      <zorder>buttonBox</zorder>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -95,6 +97,9 @@
        <property name="checked">
         <bool>true</bool>
        </property>
+       <attribute name="buttonGroup">
+        <string notr="true"/>
+       </attribute>
       </widget>
      </item>
      <item>
@@ -121,6 +126,9 @@
        <property name="checkable">
         <bool>true</bool>
        </property>
+       <attribute name="buttonGroup">
+        <string notr="true"/>
+       </attribute>
       </widget>
      </item>
      <item>
@@ -147,6 +155,9 @@
        <property name="checkable">
         <bool>true</bool>
        </property>
+       <attribute name="buttonGroup">
+        <string notr="true"/>
+       </attribute>
       </widget>
      </item>
      <item>
@@ -156,8 +167,8 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>20</width>
-         <height>40</height>
+         <width>17</width>
+         <height>48</height>
         </size>
        </property>
       </spacer>
@@ -173,8 +184,11 @@
        <property name="text">
         <string>...</string>
        </property>
-       <property name="popupMode">
-        <enum>QToolButton::InstantPopup</enum>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
        </property>
       </widget>
      </item>
@@ -241,62 +255,11 @@
    </property>
   </action>
   <action name="actionAbout">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>A&amp;bout</string>
-   </property>
-  </action>
-  <action name="actionPencil">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="graphiceditor.qrc">
-     <normaloff>:/images/Pencil.png</normaloff>
-     <normalon>:/images/Pencil.png</normalon>:/images/Pencil.png</iconset>
-   </property>
-   <property name="text">
-    <string>Pencil</string>
-   </property>
-  </action>
-  <action name="actionBrush">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normalon>:/images/Brush.png</normalon>
-    </iconset>
-   </property>
-   <property name="text">
-    <string>Brush</string>
-   </property>
-  </action>
-  <action name="actionEraser">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normalon>:/images/Eraser.png</normalon>
-    </iconset>
-   </property>
-   <property name="text">
-    <string>Eraser</string>
-   </property>
-  </action>
-  <action name="actionPalette">
-   <property name="text">
-    <string>Palette</string>
-   </property>
-  </action>
-  <action name="actionChooseColor">
-   <property name="text">
-    <string>ChooseColor</string>
-   </property>
-  </action>
-  <action name="actionChooseStamp">
-   <property name="text">
-    <string>ChooseStamp</string>
    </property>
   </action>
  </widget>

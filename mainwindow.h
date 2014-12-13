@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "canvas.h"
+#include "toolfactory.h"
 
 enum class Figure;
 enum class Size;
@@ -22,15 +23,20 @@ public:
 private:
     Ui::MainWindow *ui;
 
-    Figure m_CurrentFigure;
-    Size m_CurrentSize;
-    QColor m_CurrentColor;
+    ToolFactory m_Factory;
 
-    void createContextMenu();
+    QColor m_Color;
+    Figure m_Figure;
+    Size m_Size;
+
+
+    void createMenus();
     void connectActions();
     void createStatusBar();
     void closeEvent(QCloseEvent *);
     bool canContinue();
+    void updateColorIcon();
+    void updateStampIcon();
 
 private slots:
     void createNewImage();
@@ -44,7 +50,16 @@ private slots:
     void switchToEraser();
     void chooseColor();
     void chooseStamp();
-    void loadDataFromCanvas();
+    void updateImageName();
+
+    void roundMedium();
+    void roundLarge();
+    void squareMedium();
+    void squareLarge();
+    void slashMedium();
+    void slashLarge();
+    void backSlashMedium();
+    void backSlashLarge();
 };
 
 #endif // MAINWINDOW_H

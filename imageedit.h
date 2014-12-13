@@ -28,6 +28,8 @@ private:
     bool m_Drawing;
     QPoint m_CurrentPoint;
 
+    void drawLine(const QPoint startPoint, const QPoint endPoint);
+
 signals:
     void drawingPointChanged(const QPoint&);
 
