@@ -10,9 +10,11 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
+    m_StampMenu(nullptr),
     m_Color(Qt::black),
     m_Figure(Figure::ROUND),
-    m_Size(Size::PENCIL)
+    m_Size(Size::PENCIL),
+    m_Type(Type::PENCIL)
 {
     ui->setupUi(this);
 
@@ -31,8 +33,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->chooseFigureButton, SIGNAL(clicked()),
             this, SLOT(chooseStamp()));
 
+    QButtonGroup* toolsButtonGroup = new QButtonGroup(this);
+
+    toolsButtonGroup->addButton(ui->pencilButton);
+    toolsButtonGroup->addButton(ui->brushButton);
+    toolsButtonGroup->addButton(ui->eraserButton);
+
     switchToPencil();
     updateColorIcon();
+    adjustSize();
 }
 
 void MainWindow::connectActions()
@@ -106,8 +115,13 @@ void MainWindow::updateImageName()
 
 void MainWindow::updateStampIcon()
 {
+    QColor color;
+    if (m_Type == Type::ERASER)
+        color = Qt::white;
+    else
+        color = m_Color;
     ui->chooseFigureButton->setIcon(QPixmap::fromImage(
-                                            m_Factory.createStamp(m_Color,
+                                            m_Factory.createStamp(color,
                                                                   m_Figure,
                                                                   m_Size)));
 }
@@ -147,6 +161,9 @@ void MainWindow::openFile()
                 ui->statusbar->showMessage(tr("Failed to open file"), DELAY);
             }
             setWindowModified(false);
+            ui->imageEdit->setFixedHeight(ui->imageEdit->canvas()->getHeight());
+            ui->imageEdit->setFixedWidth(ui->imageEdit->canvas()->getWidth());
+            update();
             updateImageName();
         } else {
             ui->statusbar->showMessage(tr("File opening canceled"), DELAY);
@@ -203,36 +220,37 @@ void MainWindow::showAbout()
 
 void MainWindow::switchToPencil()
 {
-//    m_Figure = Figure::ROUND;
-//    m_Size = Size::SMALL;
     ui->imageEdit->setTool(m_Factory.createGenericBrush(m_Color,
                                                         Figure::ROUND,
                                                         Size::PENCIL));
+    m_Type = Type::PENCIL;
     ui->chooseColorButton->setEnabled(true);
     ui->chooseFigureButton->setEnabled(false);
+    updateStampIcon();
 }
 
 void MainWindow::switchToBrush()
 {
-//    m_Figure = Figure::ROUND;
-    if (m_Size == Size::PENCIL)
+    if (m_Type == Type::PENCIL)
         m_Size = Size::MEDIUM_BRUSH;
     ui->imageEdit->setTool(m_Factory.createGenericBrush(m_Color,
                                                         m_Figure,
                                                         m_Size));
+    m_Type = Type::BRUSH;
     ui->chooseColorButton->setEnabled(true);
     ui->chooseFigureButton->setEnabled(true);
+    updateStampIcon();
 }
 
 void MainWindow::switchToEraser()
 {
-//    m_Figure = Figure::ROUND;
-//    m_Size = Size::LARGE;
     ui->imageEdit->setTool(m_Factory.createGenericBrush(Qt::white,
                                                         m_Figure,
                                                         m_Size));
+    m_Type = Type::ERASER;
     ui->chooseColorButton->setEnabled(false);
     ui->chooseFigureButton->setEnabled(true);
+    updateStampIcon();
 }
 
 void MainWindow::chooseColor()
@@ -250,13 +268,21 @@ void MainWindow::chooseColor()
 
 void MainWindow::chooseStamp()
 {
-    QWidget *stampMenu = new QWidget(this, Qt::Popup);
+    if (m_StampMenu != nullptr) {
+        return;
+    }
+    m_StampMenu = new QWidget(this, Qt::Popup);
 
     QIcon icon;
+    QColor color;
+    if (m_Type == Type::ERASER)
+        color = Qt::white;
+    else
+        color = m_Color;
 
     QPushButton *roundMedium = new QPushButton;
     roundMedium->setCheckable(true);
-    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(m_Color,
+    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(color,
                                                     Figure::ROUND,
                                                     Size::MEDIUM_BRUSH)
                                       ));
@@ -266,7 +292,7 @@ void MainWindow::chooseStamp()
 
     QPushButton *roundLarge = new QPushButton;
     roundLarge->setCheckable(true);
-    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(m_Color,
+    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(color,
                                                             Figure::ROUND,
                                                             Size::LARGE_BRUSH)
                                       ));
@@ -276,7 +302,7 @@ void MainWindow::chooseStamp()
 
     QPushButton *squareMedium = new QPushButton;
     squareMedium->setCheckable(true);
-    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(m_Color,
+    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(color,
                                                             Figure::SQUARE,
                                                             Size::MEDIUM_BRUSH)
                                       ));
@@ -286,7 +312,7 @@ void MainWindow::chooseStamp()
 
     QPushButton *squareLarge = new QPushButton;
     squareLarge->setCheckable(true);
-    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(m_Color,
+    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(color,
                                                             Figure::SQUARE,
                                                             Size::LARGE_BRUSH)
                                       ));
@@ -296,7 +322,7 @@ void MainWindow::chooseStamp()
 
     QPushButton *slashMedium = new QPushButton;
     slashMedium->setCheckable(true);
-    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(m_Color,
+    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(color,
                                                             Figure::SLASH,
                                                             Size::MEDIUM_BRUSH)
                                       ));
@@ -306,7 +332,7 @@ void MainWindow::chooseStamp()
 
     QPushButton *slashLarge = new QPushButton;
     slashLarge->setCheckable(true);
-    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(m_Color,
+    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(color,
                                                             Figure::SLASH,
                                                             Size::LARGE_BRUSH)
                                       ));
@@ -316,7 +342,7 @@ void MainWindow::chooseStamp()
 
     QPushButton *backSlashMedium = new QPushButton;
     backSlashMedium->setCheckable(true);
-    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(m_Color,
+    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(color,
                                                             Figure::BACKSLASH,
                                                             Size::MEDIUM_BRUSH)
                                       ));
@@ -326,7 +352,7 @@ void MainWindow::chooseStamp()
 
     QPushButton *backSlashLarge = new QPushButton;
     backSlashLarge->setCheckable(true);
-    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(m_Color,
+    icon.addPixmap(QPixmap::fromImage(m_Factory.createStamp(color,
                                                             Figure::BACKSLASH,
                                                             Size::LARGE_BRUSH)
                                       ));
@@ -334,8 +360,8 @@ void MainWindow::chooseStamp()
     connect(backSlashLarge, SIGNAL(clicked()),
             this, SLOT(backSlashLarge()));
 
-    QButtonGroup *brushGroup = new QButtonGroup;
-    //brushGroup->
+    QButtonGroup *brushGroup = new QButtonGroup(m_StampMenu);
+
     brushGroup->addButton(roundMedium);
     brushGroup->addButton(roundLarge);
     brushGroup->addButton(squareMedium);
@@ -355,87 +381,87 @@ void MainWindow::chooseStamp()
     layout->addWidget(backSlashMedium, 3, 0);
     layout->addWidget(backSlashLarge, 3, 1);
 
-    stampMenu->setLayout(layout);
+    m_StampMenu->setLayout(layout);
 
     QRect rect = ui->chooseFigureButton->geometry();
     QPoint point = mapToGlobal(rect.topRight());
 
-    stampMenu->move(point);
-    stampMenu->show();
+    m_StampMenu->move(point);
+    m_StampMenu->show();
 
+}
+
+void MainWindow::setStamp()
+{
+    QColor color;
+    if (m_Type == Type::ERASER)
+        color = Qt::white;
+    else
+        color = m_Color;
+    ui->imageEdit->setTool(m_Factory.createGenericBrush(color,
+                                                        m_Figure,
+                                                        m_Size));
+    if (m_StampMenu != nullptr)
+        delete m_StampMenu;
+    m_StampMenu = nullptr;
+    updateStampIcon();
 }
 
 void MainWindow::roundMedium()
 {
     m_Figure = Figure::ROUND;
     m_Size = Size::MEDIUM_BRUSH;
-    ui->imageEdit->setTool(m_Factory.createGenericBrush(m_Color,
-                                                        m_Figure,
-                                                        m_Size));
-    updateStampIcon();
+    setStamp();
 }
 
 void MainWindow::roundLarge()
 {
     m_Figure = Figure::ROUND;
     m_Size = Size::LARGE_BRUSH;
-    ui->imageEdit->setTool(m_Factory.createGenericBrush(m_Color,
-                                                        m_Figure,
-                                                        m_Size));
+    setStamp();
 }
 
 void MainWindow::squareMedium()
 {
     m_Figure = Figure::SQUARE;
     m_Size = Size::MEDIUM_BRUSH;
-    ui->imageEdit->setTool(m_Factory.createGenericBrush(m_Color,
-                                                        m_Figure,
-                                                        m_Size));
+    setStamp();
+
 }
 
 void MainWindow::squareLarge()
 {
     m_Figure = Figure::SQUARE;
     m_Size = Size::LARGE_BRUSH;
-    ui->imageEdit->setTool(m_Factory.createGenericBrush(m_Color,
-                                                        m_Figure,
-                                                        m_Size));
+    setStamp();
 }
 
 void MainWindow::slashMedium()
 {
     m_Figure = Figure::SLASH;
     m_Size = Size::MEDIUM_BRUSH;
-    ui->imageEdit->setTool(m_Factory.createGenericBrush(m_Color,
-                                                        m_Figure,
-                                                        m_Size));
+    setStamp();
 }
 
 void MainWindow::slashLarge()
 {
     m_Figure = Figure::SLASH;
     m_Size = Size::LARGE_BRUSH;
-    ui->imageEdit->setTool(m_Factory.createGenericBrush(m_Color,
-                                                        m_Figure,
-                                                        m_Size));
+    setStamp();
 }
 
 void MainWindow::backSlashMedium()
 {
     m_Figure = Figure::BACKSLASH;
     m_Size = Size::MEDIUM_BRUSH;
-    ui->imageEdit->setTool(m_Factory.createGenericBrush(m_Color,
-                                                        m_Figure,
-                                                        m_Size));
+    setStamp();
 }
 
 void MainWindow::backSlashLarge()
 {
     m_Figure = Figure::BACKSLASH;
     m_Size = Size::LARGE_BRUSH;
-    ui->imageEdit->setTool(m_Factory.createGenericBrush(m_Color,
-                                                        m_Figure,
-                                                        m_Size));
+    setStamp();
 }
 
 MainWindow::~MainWindow()

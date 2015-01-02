@@ -87,3 +87,13 @@ void Canvas::storeImage()
 {
     m_PreviousImage = m_Image;
 }
+
+int Canvas::getWidth()
+{
+    return m_Image.width();
+}
+
+int Canvas::getHeight()
+{
+    return m_Image.height();
+}

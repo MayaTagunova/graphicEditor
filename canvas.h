@@ -25,6 +25,8 @@ public:
     void clear();
     void undo();
     void storeImage();
+    int getWidth();
+    int getHeight();
 
 private:
     QImage m_Image;

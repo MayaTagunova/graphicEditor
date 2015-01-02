@@ -7,6 +7,7 @@
 
 enum class Figure;
 enum class Size;
+enum class Type {PENCIL, BRUSH, ERASER};
 
 namespace Ui {
 class MainWindow;
@@ -22,12 +23,14 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QWidget *m_StampMenu;
 
     ToolFactory m_Factory;
 
     QColor m_Color;
     Figure m_Figure;
     Size m_Size;
+    Type m_Type;
 
 
     void createMenus();
@@ -37,6 +40,7 @@ private:
     bool canContinue();
     void updateColorIcon();
     void updateStampIcon();
+    void setStamp();
 
 private slots:
     void createNewImage();
